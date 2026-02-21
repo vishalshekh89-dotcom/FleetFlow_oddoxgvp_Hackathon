@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Trips — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div>
+    <div class="page-title">Trip Dispatcher</div>
+    <div class="page-subtitle">Create & manage delivery trips</div>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'trip_add' %}" class="btn-primary-ff">
+      <i class="bi bi-plus-lg"></i> New Trip
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="filter-chips">
+  <a href="{% url 'trip_list' %}" class="chip {% if not request.GET.status %}active{% endif %}">All</a>
+  <a href="?status=draft" class="chip {% if request.GET.status == 'draft' %}active{% endif %}">Draft</a>
+  <a href="?status=dispatched" class="chip {% if request.GET.status == 'dispatched' %}active{% endif %}">Dispatched</a>
+  <a href="?status=completed" class="chip {% if request.GET.status == 'completed' %}active{% endif %}">Completed</a>
+  <a href="?status=cancelled" class="chip {% if request.GET.status == 'cancelled' %}active{% endif %}">Cancelled</a>
+</div>
+
+<div class="card-box">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Trip ID</th><th>Vehicle</th><th>Driver</th>
+          <th>Route</th><th>Cargo</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trip in trips %}
+        <tr>
+          <td><b>#T-{{ trip.id }}</b></td>
+          <td>{{ trip.vehicle.name }}</td>
+          <td>{{ trip.driver.name }}</td>
+          <td>{{ trip.origin }} → {{ trip.destination }}</td>
+          <td>{{ trip.cargo_weight_kg }} / {{ trip.vehicle.max_capacity_kg }} kg</td>
+          <td>
+            <span class="pill pill-{% if trip.status == 'completed' %}success{% elif trip.status == 'dispatched' %}primary{% elif trip.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+              <span class="pill-dot"></span>{{ trip.get_status_display }}
+            </span>
+          </td>
+          <td style="display:flex;gap:6px">
+            {% if trip.status == 'draft' %}
+              <a href="{% url 'trip_dispatch' trip.pk %}" class="btn-primary-ff btn-sm-ff">Dispatch</a>
+            {% elif trip.status == 'dispatched' %}
+              <a href="{% url 'trip_complete' trip.pk %}" class="btn-primary-ff btn-sm-ff">Complete</a>
+            {% endif %}
+            <a href="{% url 'trip_edit' trip.pk %}" class="btn-outline-ff btn-sm-ff">Edit</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No trips found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

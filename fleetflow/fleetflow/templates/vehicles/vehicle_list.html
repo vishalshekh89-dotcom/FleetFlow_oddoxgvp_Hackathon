@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Vehicles — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div>
+    <div class="page-title">Vehicle Registry</div>
+    <div class="page-subtitle">{{ vehicles.count }} total vehicles</div>
+  </div>
+  <div class="topbar-actions">
+    <form method="get" style="display:flex">
+      <div class="search-bar">
+        <i class="bi bi-search"></i>
+        <input name="q" placeholder="Search name or plate..." value="{{ request.GET.q }}">
+      </div>
+    </form>
+    <a href="{% url 'vehicle_add' %}" class="btn-primary-ff">
+      <i class="bi bi-plus-lg"></i> Add Vehicle
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="filter-chips">
+  <a href="{% url 'vehicle_list' %}" class="chip {% if not request.GET.status %}active{% endif %}">All</a>
+  <a href="?status=available" class="chip {% if request.GET.status == 'available' %}active{% endif %}">Available</a>
+  <a href="?status=on_trip" class="chip {% if request.GET.status == 'on_trip' %}active{% endif %}">On Trip</a>
+  <a href="?status=in_shop" class="chip {% if request.GET.status == 'in_shop' %}active{% endif %}">In Shop</a>
+  <a href="?status=retired" class="chip {% if request.GET.status == 'retired' %}active{% endif %}">Retired</a>
+</div>
+
+<div class="grid-3">
+  {% for v in vehicles %}
+  <div class="vehicle-card fade-up">
+    <div class="vehicle-card-top">
+      <div class="vehicle-type-icon">
+        {% if v.vehicle_type == 'truck' %}🚛{% elif v.vehicle_type == 'van' %}🚐{% else %}🏍️{% endif %}
+      </div>
+      <span class="pill pill-{% if v.status == 'available' %}success{% elif v.status == 'on_trip' %}primary{% elif v.status == 'in_shop' %}warning{% else %}secondary{% endif %}">
+        <span class="pill-dot"></span>{{ v.get_status_display }}
+      </span>
+    </div>
+    <div class="vehicle-name">{{ v.name }}</div>
+    <div class="vehicle-plate">{{ v.license_plate }}</div>
+    <div class="vehicle-stats">
+      <div class="vehicle-stat">Max Load <span>{{ v.max_capacity_kg }} kg</span></div>
+      <div class="vehicle-stat">Odometer <span>{{ v.odometer|floatformat:0 }} km</span></div>
+      <div class="vehicle-stat">Type <span>{{ v.get_vehicle_type_display }}</span></div>
+      <div class="vehicle-stat">Region <span>{{ v.region|default:"—" }}</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <a href="{% url 'vehicle_edit' v.pk %}" class="btn-outline-ff btn-sm-ff">
+        <i class="bi bi-pencil"></i> Edit
+      </a>
+      <a href="{% url 'vehicle_delete' v.pk %}" class="btn-danger-ff">Retire</a>
+    </div>
+  </div>
+  {% empty %}
+  <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">
+    <i class="bi bi-truck-front" style="font-size:48px;display:block;margin-bottom:12px"></i>
+    No vehicles found. <a href="{% url 'vehicle_add' %}" style="color:var(--accent)">Add one!</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div>
+    <div class="page-title">Command Center</div>
+    <div class="page-subtitle">Real-time fleet overview</div>
+  </div>
+  <div class="topbar-actions">
+    <div class="btn-icon"><i class="bi bi-bell"></i></div>
+    <div class="btn-icon"><i class="bi bi-arrow-clockwise" onclick="location.reload()"></i></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- KPI -->
+<div class="kpi-grid">
+  <div class="kpi-card cyan">
+    <div class="kpi-icon"><i class="bi bi-truck-front-fill"></i></div>
+    <div class="kpi-value">{{ on_trip_count }}</div>
+    <div class="kpi-label">Active Fleet (On Trip)</div>
+  </div>
+  <div class="kpi-card orange">
+    <div class="kpi-icon"><i class="bi bi-tools"></i></div>
+    <div class="kpi-value">{{ in_shop_count }}</div>
+    <div class="kpi-label">Maintenance Alerts</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-icon"><i class="bi bi-speedometer2"></i></div>
+    <div class="kpi-value">{{ utilization_rate }}%</div>
+    <div class="kpi-label">Fleet Utilization Rate</div>
+  </div>
+  <div class="kpi-card yellow">
+    <div class="kpi-icon"><i class="bi bi-box-seam-fill"></i></div>
+    <div class="kpi-value">{{ pending_trips }}</div>
+    <div class="kpi-label">Pending / Draft Trips</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Recent Trips -->
+  <div class="card-box">
+    <div class="card-header">
+      <i class="bi bi-map" style="color:var(--accent)"></i>
+      <div>
+        <div class="card-header-title">Recent Trips</div>
+        <div class="card-header-sub">Last 10 trips</div>
+      </div>
+      <div class="card-header-actions">
+        <a href="{% url 'trip_list' %}" class="btn-outline-ff btn-sm-ff">View All</a>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Trip</th><th>Driver</th><th>Route</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for trip in recent_trips %}
+          <tr>
+            <td><b>#T-{{ trip.id }}</b></td>
+            <td>{{ trip.driver.name }}</td>
+            <td>{{ trip.origin|truncatechars:10 }} → {{ trip.destination|truncatechars:10 }}</td>
+            <td>
+              <span class="pill pill-{% if trip.status == 'completed' %}success{% elif trip.status == 'dispatched' %}primary{% elif trip.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                <span class="pill-dot"></span>{{ trip.get_status_display }}
+              </span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No trips yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Fleet Status -->
+  <div class="card-box">
+    <div class="card-header">
+      <i class="bi bi-truck-front" style="color:var(--accent)"></i>
+      <div>
+        <div class="card-header-title">Fleet Status</div>
+        <div class="card-header-sub">{{ total_vehicles }} total vehicles</div>
+      </div>
+    </div>
+    <div style="padding:16px">
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px">Available</span>
+          <span style="font-size:13px;font-weight:700">{{ available_count }}</span>
+        </div>
+        <div class="progress-ff">
+          <div class="progress-bar-ff" style="width:{% widthratio available_count total_vehicles 100 %}%;background:linear-gradient(90deg,var(--success),#059669)"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px">On Trip</span>
+          <span style="font-size:13px;font-weight:700">{{ on_trip_count }}</span>
+        </div>
+        <div class="progress-ff">
+          <div class="progress-bar-ff" style="width:{% widthratio on_trip_count total_vehicles 100 %}%"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px">In Shop</span>
+          <span style="font-size:13px;font-weight:700">{{ in_shop_count }}</span>
+        </div>
+        <div class="progress-ff">
+          <div class="progress-bar-ff" style="width:{% widthratio in_shop_count total_vehicles 100 %}%;background:linear-gradient(90deg,var(--warning),#D97706)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expired Licenses Alert -->
+{% if expired_drivers %}
+<div class="card-box">
+  <div class="card-header">
+    <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
+    <div><div class="card-header-title">License Expiry Alerts</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Driver</th><th>License</th><th>Expiry</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for driver in expired_drivers %}
+        <tr>
+          <td><b>{{ driver.name }}</b></td>
+          <td style="font-family:monospace">{{ driver.license_number }}</td>
+          <td style="color:var(--danger);font-weight:700">{{ driver.license_expiry }}</td>
+          <td><a href="{% url 'driver_edit' driver.pk %}" class="btn-outline-ff btn-sm-ff">Update License</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

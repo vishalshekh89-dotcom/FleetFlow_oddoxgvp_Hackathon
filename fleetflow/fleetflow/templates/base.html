@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}FleetFlow{% endblock %}</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div style="display:flex">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <div class="brand-icon">🚛</div>
+        <div>
+          <div class="brand-name">FleetFlow</div>
+          <div class="brand-tag">Fleet Management</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- OVERVIEW — Manager Only -->
+      {% if request.user.is_superuser or request.user.groups.first.name == 'Manager' %}
+      <div class="nav-section">Overview</div>
+      <a class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+        <i class="bi bi-grid-1x2-fill"></i> Command Center
+      </a>
+      {% endif %}
+
+      <!-- FLEET -->
+      {% if request.user.is_superuser or request.user.groups.first.name == 'Manager' or request.user.groups.first.name == 'Dispatcher' or request.user.groups.first.name == 'Safety Officer' %}
+      <div class="nav-section">Fleet</div>
+      {% endif %}
+
+      <!-- Vehicles — Manager + Dispatcher -->
+      {% if request.user.is_superuser or request.user.groups.first.name == 'Manager' or request.user.groups.first.name == 'Dispatcher' %}
+      <a class="nav-item {% if 'vehicle' in request.path %}active{% endif %}" href="{% url 'vehicle_list' %}">
+        <i class="bi bi-truck-front-fill"></i> Vehicle Registry
+      </a>
+      {% endif %}
+
+      <!-- Drivers — Manager + Safety Officer -->
+      {% if request.user.is_superuser or request.user.groups.first.name == 'Manager' or request.user.groups.first.name == 'Safety Officer' %}
+      <a class="nav-item {% if 'driver' in request.path %}active{% endif %}" href="{% url 'driver_list' %}">
+        <i class="bi bi-person-badge-fill"></i> Driver Profiles
+      </a>
+      {% endif %}
+
+      <!-- OPERATIONS — Manager + Dispatcher -->
+      {% if request.user.is_superuser or request.user.groups.first.name == 'Manager' or request.user.groups.first.name == 'Dispatcher' %}
+      <div class="nav-section">Operations</div>
+      <a class="nav-item {% if 'trip' in request.path %}active{% endif %}" href="{% url 'trip_list' %}">
+        <i class="bi bi-map-fill"></i> Trip Dispatcher
+      </a>
+      <a class="nav-item {% if 'maintenance' in request.path %}active{% endif %}" href="{% url 'maintenance_list' %}">
+        <i class="bi bi-tools"></i> Maintenance Logs
+      </a>
+      <a class="nav-item {% if 'expense' in request.path or 'fuel' in request.path %}active{% endif %}" href="{% url 'expense_list' %}">
+        <i class="bi bi-fuel-pump-fill"></i> Fuel & Expenses
+      </a>
+      {% endif %}
+
+      <!-- REPORTS — Manager + Analyst -->
+      {% if request.user.is_superuser or request.user.groups.first.name == 'Manager' or request.user.groups.first.name == 'Analyst' %}
+      <div class="nav-section">Reports</div>
+      <a class="nav-item {% if 'analytics' in request.path %}active{% endif %}" href="{% url 'analytics' %}">
+        <i class="bi bi-graph-up-arrow"></i> Analytics & Reports
+      </a>
+      {% endif %}
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">{{ request.user.username|slice:":2"|upper }}</div>
+        <div>
+          <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="user-role">{{ request.user.groups.first|default:"Staff" }}</div>
+        </div>
+        <a href="{% url 'logout' %}" class="btn-icon" style="margin-left:auto;width:28px;height:28px">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    {% block topbar %}{% endblock %}
+
+    <div class="content-area">
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert-box {% if msg.tags == 'error' %}alert-danger{% elif msg.tags == 'success' %}alert-success{% else %}alert-warning{% endif %}" style="margin-bottom:16px">
+            <i class="bi bi-info-circle-fill"></i> {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

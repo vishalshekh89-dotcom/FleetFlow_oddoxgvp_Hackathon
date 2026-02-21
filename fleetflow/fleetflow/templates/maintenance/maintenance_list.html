@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Maintenance — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div>
+    <div class="page-title">Maintenance Logs</div>
+    <div class="page-subtitle">Vehicle health tracking</div>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'maintenance_add' %}" class="btn-primary-ff">
+      <i class="bi bi-plus-lg"></i> Log Service
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="alert-box alert-warning">
+  <i class="bi bi-info-circle-fill"></i>
+  <b>Auto-Logic:</b> Logging maintenance automatically sets vehicle status to <b>"In Shop"</b> and removes it from dispatcher.
+</div>
+
+<div class="card-box">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Vehicle</th><th>Description</th><th>Cost (₹)</th><th>Date</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td><b>{{ log.vehicle.name }}</b></td>
+          <td>{{ log.description }}</td>
+          <td>₹ {{ log.cost }}</td>
+          <td>{{ log.date }}</td>
+          <td>
+            <span class="pill pill-{{ log.vehicle.status_badge }}">
+              <span class="pill-dot"></span>{{ log.vehicle.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)">No maintenance logs</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

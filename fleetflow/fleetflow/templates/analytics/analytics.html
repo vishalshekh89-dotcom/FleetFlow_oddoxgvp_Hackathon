@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Analytics — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div>
+    <div class="page-title">Analytics & Reports</div>
+    <div class="page-subtitle">Data-driven decision making</div>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'export_csv' %}" class="btn-outline-ff"><i class="bi bi-filetype-csv"></i> Export CSV</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid-3" style="margin-bottom:20px">
+  <div class="metric-card">
+    <div style="font-size:24px">⛽</div>
+    <div class="metric-value" style="color:var(--accent)">{{ avg_fuel_efficiency }}</div>
+    <div class="metric-label">Avg Fuel Efficiency</div>
+    <div class="metric-sub">km / Liter</div>
+  </div>
+  <div class="metric-card">
+    <div style="font-size:24px">📦</div>
+    <div class="metric-value" style="color:var(--success)">{{ total_trips }}</div>
+    <div class="metric-label">Trips Completed</div>
+    <div class="metric-sub">All time</div>
+  </div>
+  <div class="metric-card">
+    <div style="font-size:24px">💰</div>
+    <div class="metric-value" style="color:var(--warning)">₹{{ avg_cost_per_km }}</div>
+    <div class="metric-label">Avg Cost per km</div>
+    <div class="metric-sub">Fuel + Maintenance</div>
+  </div>
+</div>
+
+<div class="card-box">
+  <div class="card-header">
+    <i class="bi bi-graph-up" style="color:var(--accent)"></i>
+    <div><div class="card-header-title">Per Vehicle Cost Summary</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Vehicle</th><th>Fuel Cost</th><th>Maintenance</th><th>Total Cost</th><th>Trips</th></tr>
+      </thead>
+      <tbody>
+        {% for row in vehicle_summary %}
+        <tr>
+          <td><b>{{ row.name }}</b></td>
+          <td>₹ {{ row.fuel_total|floatformat:0 }}</td>
+          <td>₹ {{ row.maint_total|floatformat:0 }}</td>
+          <td><span class="pill pill-cyan">₹ {{ row.total|floatformat:0 }}</span></td>
+          <td>{{ row.trip_count }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)">No data yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

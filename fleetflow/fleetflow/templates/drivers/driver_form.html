@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}{% if vehicle %}Edit{% else %}Add{% endif %} Driver — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="{% url 'driver_list' %}" class="btn-icon"><i class="bi bi-arrow-left"></i></a>
+    <div><div class="page-title">{% if driver %}Edit Driver{% else %}Add New Driver{% endif %}</div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:700px">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-title"><i class="bi bi-person-badge-fill"></i> Driver Information</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Full Name</label>
+          <input class="form-control-ff" type="text" name="name" value="{{ driver.name|default:'' }}" placeholder="e.g. Alex Kumar" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Phone Number</label>
+          <input class="form-control-ff" type="text" name="phone" value="{{ driver.phone|default:'' }}" placeholder="e.g. 9876543210" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">License Number</label>
+          <input class="form-control-ff" type="text" name="license_number" value="{{ driver.license_number|default:'' }}" placeholder="e.g. DL-GJ-20210045" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">License Expiry Date</label>
+          <input class="form-control-ff" type="date" name="license_expiry" value="{{ driver.license_expiry|default:'' }}" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">License Category</label>
+          <select class="form-control-ff" name="license_category" required>
+            <option value="">Select category...</option>
+            <option value="truck" {% if driver.license_category == 'truck' %}selected{% endif %}>🚛 Truck</option>
+            <option value="van" {% if driver.license_category == 'van' %}selected{% endif %}>🚐 Van</option>
+            <option value="bike" {% if driver.license_category == 'bike' %}selected{% endif %}>🏍️ Bike</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Safety Score (0-100)</label>
+          <input class="form-control-ff" type="number" name="safety_score" value="{{ driver.safety_score|default:'100' }}" min="0" max="100">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label-ff">Status</label>
+        <select class="form-control-ff" name="status">
+          <option value="off_duty" {% if driver.status == 'off_duty' %}selected{% endif %}>Off Duty</option>
+          <option value="on_duty" {% if driver.status == 'on_duty' %}selected{% endif %}>On Duty</option>
+          <option value="suspended" {% if driver.status == 'suspended' %}selected{% endif %}>Suspended</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <button type="submit" class="btn-primary-ff"><i class="bi bi-check-lg"></i> Save Driver</button>
+      <a href="{% url 'driver_list' %}" class="btn-outline-ff">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

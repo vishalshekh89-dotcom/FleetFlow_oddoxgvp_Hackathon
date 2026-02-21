@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Log Maintenance — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="{% url 'maintenance_list' %}" class="btn-icon"><i class="bi bi-arrow-left"></i></a>
+    <div><div class="page-title">Log Maintenance Service</div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:700px">
+  <div class="alert-box alert-warning">
+    <i class="bi bi-info-circle-fill"></i>
+    <b>Auto-Logic:</b> Saving this log will automatically set vehicle status to <b>"In Shop"</b>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-title"><i class="bi bi-tools"></i> Maintenance Details</div>
+      <div class="form-group">
+        <label class="form-label-ff">Select Vehicle</label>
+        <select class="form-control-ff" name="vehicle" required>
+          <option value="">Select vehicle...</option>
+          {% for v in vehicles %}
+          <option value="{{ v.pk }}">{{ v.name }} — {{ v.license_plate }} ({{ v.get_status_display }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label-ff">Service Description</label>
+        <textarea class="form-control-ff" name="description" rows="3" placeholder="e.g. Oil Change, Tyre Replacement..." required></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Cost (₹)</label>
+          <input class="form-control-ff" type="number" name="cost" placeholder="e.g. 1200" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Service Date</label>
+          <input class="form-control-ff" type="date" name="date" required>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <button type="submit" class="btn-primary-ff"><i class="bi bi-check-lg"></i> Save Maintenance Log</button>
+      <a href="{% url 'maintenance_list' %}" class="btn-outline-ff">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

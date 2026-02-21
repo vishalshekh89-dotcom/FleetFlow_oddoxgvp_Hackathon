@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Complete Trip — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="{% url 'trip_list' %}" class="btn-icon"><i class="bi bi-arrow-left"></i></a>
+    <div><div class="page-title">Complete Trip #{{ trip.id }}</div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:600px">
+  <div class="card-box" style="margin-bottom:20px">
+    <div style="padding:20px">
+      <div class="form-row-3">
+        <div>
+          <div class="form-label-ff">Vehicle</div>
+          <div style="font-weight:700">{{ trip.vehicle.name }}</div>
+        </div>
+        <div>
+          <div class="form-label-ff">Driver</div>
+          <div style="font-weight:700">{{ trip.driver.name }}</div>
+        </div>
+        <div>
+          <div class="form-label-ff">Route</div>
+          <div style="font-weight:700">{{ trip.origin }} → {{ trip.destination }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-title"><i class="bi bi-flag-fill"></i> Trip Completion Details</div>
+      <div class="form-group">
+        <label class="form-label-ff">Start Odometer (km)</label>
+        <input class="form-control-ff" type="number" value="{{ trip.start_odometer }}" disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label-ff">End Odometer (km)</label>
+        <input class="form-control-ff" type="number" name="end_odometer" placeholder="Enter final odometer reading" required>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <button type="submit" class="btn-primary-ff"><i class="bi bi-check-circle-fill"></i> Mark as Completed</button>
+      <a href="{% url 'trip_list' %}" class="btn-outline-ff">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

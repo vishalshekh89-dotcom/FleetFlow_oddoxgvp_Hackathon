@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}New Trip — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="{% url 'trip_list' %}" class="btn-icon"><i class="bi bi-arrow-left"></i></a>
+    <div><div class="page-title">Create New Trip</div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:700px">
+  <!-- Trip Lifecycle -->
+  <div class="card-box" style="margin-bottom:20px">
+    <div style="padding:20px">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Trip Lifecycle</div>
+      <div class="trip-status-bar">
+        <div class="trip-step active">
+          <div class="trip-step-dot">1</div>
+          <div class="trip-step-label">Draft</div>
+        </div>
+        <div class="trip-connector"></div>
+        <div class="trip-step">
+          <div class="trip-step-dot">2</div>
+          <div class="trip-step-label">Dispatched</div>
+        </div>
+        <div class="trip-connector"></div>
+        <div class="trip-step">
+          <div class="trip-step-dot">3</div>
+          <div class="trip-step-label">Completed</div>
+        </div>
+        <div class="trip-connector"></div>
+        <div class="trip-step">
+          <div class="trip-step-dot">✕</div>
+          <div class="trip-step-label">Cancelled</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cargo-alert" class="alert-box alert-danger" style="display:none">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span><b>Validation Error:</b> Cargo weight exceeds vehicle max capacity!</span>
+  </div>
+
+  <form method="post" id="trip-form">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-title"><i class="bi bi-truck-front-fill"></i> Assign Vehicle & Driver</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Vehicle (Available Only)</label>
+          <select class="form-control-ff" name="vehicle" id="vehicle-select" required onchange="updateCapacity()">
+            <option value="">Select vehicle...</option>
+            {% for v in available_vehicles %}
+            <option value="{{ v.pk }}" data-capacity="{{ v.max_capacity_kg }}">
+              {{ v.name }} — Max {{ v.max_capacity_kg }}kg
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Driver (Valid License Only)</label>
+          <select class="form-control-ff" name="driver" required>
+            <option value="">Select driver...</option>
+            {% for d in available_drivers %}
+            <option value="{{ d.pk }}">✅ {{ d.name }} — {{ d.get_license_category_display }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="bi bi-geo-alt-fill"></i> Route & Cargo</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Origin</label>
+          <input class="form-control-ff" type="text" name="origin" placeholder="e.g. Ahmedabad" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Destination</label>
+          <input class="form-control-ff" type="text" name="destination" placeholder="e.g. Surat" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Cargo Weight (kg) <span id="capacity-hint" style="color:var(--accent);font-weight:400"></span></label>
+          <input class="form-control-ff" type="number" name="cargo_weight_kg" id="cargo-input" placeholder="e.g. 450" required oninput="checkCapacity()">
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Start Odometer (km)</label>
+          <input class="form-control-ff" type="number" name="start_odometer" placeholder="e.g. 45230" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label-ff">Notes</label>
+        <textarea class="form-control-ff" name="notes" rows="2" placeholder="Special instructions..."></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px">
+      <button type="submit" name="action" value="dispatch" class="btn-primary-ff">
+        <i class="bi bi-send-fill"></i> Create & Dispatch
+      </button>
+      <button type="submit" name="action" value="draft" class="btn-outline-ff">
+        <i class="bi bi-floppy"></i> Save as Draft
+      </button>
+      <a href="{% url 'trip_list' %}" class="btn-outline-ff">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateCapacity(){
+  const sel = document.getElementById('vehicle-select');
+  const opt = sel.options[sel.selectedIndex];
+  const cap = opt ? opt.dataset.capacity : null;
+  document.getElementById('capacity-hint').textContent = cap ? `(Max: ${cap} kg)` : '';
+  checkCapacity();
+}
+
+function checkCapacity(){
+  const sel = document.getElementById('vehicle-select');
+  const opt = sel.options[sel.selectedIndex];
+  const cap = parseFloat(opt ? opt.dataset.capacity : 0) || 0;
+  const cargo = parseFloat(document.getElementById('cargo-input').value) || 0;
+  const alert = document.getElementById('cargo-alert');
+  alert.style.display = (cap > 0 && cargo > cap) ? 'flex' : 'none';
+}
+</script>
+{% endblock %}

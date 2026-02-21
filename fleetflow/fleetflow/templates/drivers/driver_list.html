@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Drivers — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div>
+    <div class="page-title">Driver Profiles</div>
+    <div class="page-subtitle">Safety & compliance management</div>
+  </div>
+  <div class="topbar-actions">
+    <a href="{% url 'driver_add' %}" class="btn-primary-ff">
+      <i class="bi bi-plus-lg"></i> Add Driver
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if expired_drivers %}
+<div class="card-box" style="margin-bottom:20px">
+  <div class="card-header">
+    <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
+    <div><div class="card-header-title">⚠️ License Expiry Alerts</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Driver</th><th>License No.</th><th>Expiry</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for d in expired_drivers %}
+        <tr>
+          <td><b>{{ d.name }}</b></td>
+          <td style="font-family:monospace">{{ d.license_number }}</td>
+          <td style="color:var(--danger);font-weight:700">{{ d.license_expiry }}</td>
+          <td><span class="pill pill-danger"><span class="pill-dot"></span>Expired — Blocked</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="grid-3">
+  {% for d in drivers %}
+  <div class="driver-card fade-up">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div class="driver-avatar" style="background:linear-gradient(135deg,#00E5FF,#0080FF)">
+        {{ d.name|slice:":2"|upper }}
+      </div>
+      <span class="pill pill-{% if d.status == 'on_duty' %}success{% elif d.status == 'suspended' %}danger{% else %}secondary{% endif %}">
+        <span class="pill-dot"></span>{{ d.get_status_display }}
+      </span>
+    </div>
+    <div class="driver-name">{{ d.name }}</div>
+    <div class="driver-meta">{{ d.license_number }} · {{ d.get_license_category_display }}</div>
+    <div class="driver-meta" style="margin-top:4px;color:{% if d.is_license_valid %}var(--success){% else %}var(--danger){% endif %}">
+      <i class="bi bi-shield-{% if d.is_license_valid %}check{% else %}x{% endif %}"></i>
+      License {% if d.is_license_valid %}valid till{% else %}EXPIRED on{% endif %} {{ d.license_expiry }}
+    </div>
+    <div class="driver-stats">
+      <div class="driver-stat">
+        <span>{{ d.trip_set.filter.count|default:"0" }}</span>Trips
+      </div>
+      <div class="driver-stat">
+        <span>{{ d.safety_score|floatformat:0 }}</span>Safety Score
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <a href="{% url 'driver_edit' d.pk %}" class="btn-outline-ff btn-sm-ff">
+        <i class="bi bi-pencil"></i> Edit
+      </a>
+      <a href="{% url 'driver_delete' d.pk %}" class="btn-danger-ff">Remove</a>
+    </div>
+  </div>
+  {% empty %}
+  <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">
+    <i class="bi bi-person-badge" style="font-size:48px;display:block;margin-bottom:12px"></i>
+    No drivers found. <a href="{% url 'driver_add' %}" style="color:var(--accent)">Add one!</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

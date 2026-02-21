@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Vehicle — FleetFlow{% endblock %}
+
+{% block topbar %}
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="{% url 'vehicle_list' %}" class="btn-icon"><i class="bi bi-arrow-left"></i></a>
+    <div>
+      <div class="page-title">{% if form.instance.pk %}Edit Vehicle{% else %}Add New Vehicle{% endif %}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:700px">
+  <div class="alert-box alert-warning">
+    <i class="bi bi-info-circle-fill"></i>
+    License Plate must be unique. New vehicle status defaults to <b>Available</b>.
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-title"><i class="bi bi-truck-front-fill"></i> Vehicle Information</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Vehicle Name / Model</label>
+          <input class="form-control-ff" type="text" name="name" value="{{ form.name.value|default:'' }}" placeholder="e.g. Tata Ace Van-06" required>
+          {% if form.name.errors %}<div style="color:var(--danger);font-size:12px;margin-top:4px">{{ form.name.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">License Plate</label>
+          <input class="form-control-ff" type="text" name="license_plate" value="{{ form.license_plate.value|default:'' }}" placeholder="e.g. GJ-01-AB-0000" required>
+          {% if form.license_plate.errors %}<div style="color:var(--danger);font-size:12px;margin-top:4px">{{ form.license_plate.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Vehicle Type</label>
+          <select class="form-control-ff" name="vehicle_type" required>
+            <option value="">Select type...</option>
+            <option value="truck" {% if form.vehicle_type.value == 'truck' %}selected{% endif %}>🚛 Truck</option>
+            <option value="van" {% if form.vehicle_type.value == 'van' %}selected{% endif %}>🚐 Van</option>
+            <option value="bike" {% if form.vehicle_type.value == 'bike' %}selected{% endif %}>🏍️ Bike</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Max Load Capacity (kg)</label>
+          <input class="form-control-ff" type="number" name="max_capacity_kg" value="{{ form.max_capacity_kg.value|default:'' }}" placeholder="e.g. 500" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label-ff">Current Odometer (km)</label>
+          <input class="form-control-ff" type="number" name="odometer" value="{{ form.odometer.value|default:'0' }}" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label-ff">Region</label>
+          <input class="form-control-ff" type="text" name="region" value="{{ form.region.value|default:'' }}" placeholder="e.g. Ahmedabad">
+        </div>
+      </div>
+      {% if form.instance.pk %}
+      <div class="form-group">
+        <label class="form-label-ff">Status</label>
+        <select class="form-control-ff" name="status">
+          <option value="available" {% if form.status.value == 'available' %}selected{% endif %}>Available</option>
+          <option value="on_trip" {% if form.status.value == 'on_trip' %}selected{% endif %}>On Trip</option>
+          <option value="in_shop" {% if form.status.value == 'in_shop' %}selected{% endif %}>In Shop</option>
+          <option value="retired" {% if form.status.value == 'retired' %}selected{% endif %}>Retired</option>
+        </select>
+      </div>
+      {% endif %}
+    </div>
+    <div style="display:flex;gap:12px">
+      <button type="submit" class="btn-primary-ff"><i class="bi bi-check-lg"></i> Save Vehicle</button>
+      <a href="{% url 'vehicle_list' %}" class="btn-outline-ff">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
