@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pending Approval — FleetFlow</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-bg"></div>
+  <div class="login-card" style="text-align:center">
+    <div style="font-size:56px;margin-bottom:16px">⏳</div>
+    <div class="login-title">Request Submitted!</div>
+    <div class="login-sub" style="margin-bottom:24px">
+      Your registration request has been sent to the admin for review.
+      You will receive an email once approved.
+    </div>
+    <div class="alert-box alert-warning" style="justify-content:center;text-align:left">
+      <i class="bi bi-info-circle-fill"></i>
+      <div>
+        <b>What happens next?</b><br>
+        1. Admin reviews your request<br>
+        2. You get approval email<br>
+        3. Login with your credentials
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <a href="{% url 'login' %}" class="btn-outline-ff" style="justify-content:center;width:100%;padding:13px">
+        <i class="bi bi-arrow-left"></i> Back to Login
+      </a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
