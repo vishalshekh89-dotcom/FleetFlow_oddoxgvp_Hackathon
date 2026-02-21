@@ -101,3 +101,24 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# for email sending in production, configure SMTP settings
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'chaudharykamlesh185@gmail.com'
+EMAIL_HOST_PASSWORD = 'cujejtrjzzfctwur'
+DEFAULT_FROM_EMAIL = "FleetFlow Team <chaudharykamlesh185@gmail.com>"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+
+INSTALLED_APPS += ['django.contrib.sites']
+SITE_ID = 1
+
+# Password reset link valid for 1 hour
+PASSWORD_RESET_TIMEOUT = 3600
